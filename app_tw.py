@@ -23,7 +23,7 @@ def get_quicken_row(symbol, d, row):
     """
     Reference: https://community.quicken.com/discussion/7542737/faq-importing-security-prices-including-hi-lo-vol/p1?new=1
     """
-    return '{symbol}, {close}, ---, {date}, ---, {hi}, {lo}, {vol}, *'.format(
+    return '{symbol}tw, {close}, ---, {date}, ---, {hi}, {lo}, {vol}, *'.format(
         symbol=symbol,
         close=row[6],
         date=d.strftime('%Y/%m/%d'),
