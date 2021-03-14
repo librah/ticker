@@ -46,7 +46,7 @@ def parse_args():
 
 
 def main(args):
-    for symbol in set(env.str('SYMBOLS').split('\n')):
+    for symbol in sorted(set(env.str('SYMBOLS').split('\n'))):
         symbol = symbol.strip()
         if not symbol:
             continue
