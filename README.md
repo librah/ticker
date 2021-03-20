@@ -23,4 +23,5 @@ SYMBOLS_TW="  <= for Taiwan listed
 $ pip install -r requirements.txt
 $ python app.py > price.csv
 $ python app_tw.py > price_tw.csv
+$ (optional) on windows, use sublime to convert file encoding to UTF-8
 ```
