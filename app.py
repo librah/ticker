@@ -1,4 +1,5 @@
 import argparse
+import datetime
 import logging
 import sys
 import time
@@ -46,21 +47,24 @@ def parse_args():
 
 
 def main(args):
+    one_month_ago = (datetime.datetime.now() - datetime.timedelta(days=30)).strftime('%Y-%m-%d')
     for symbol in sorted(set(env.str('SYMBOLS').split('\n'))):
         symbol = symbol.strip()
         if not symbol:
             continue
-        try:
-            eprint('Getting "{symbol}" historical price'.format(symbol=symbol))
-            daily_data = get_daily(symbol)
-            for d, row in daily_data[:'2021-03-01 00:00:00'].iterrows():
-                print(get_quicken_row(symbol, d, row))
-        except RateLimitException:
-            eprint('Sleep 60 seconds to cope with rate limiting')
-            time.sleep(60)
+        while True:
+            try:
+                logger.info('Getting "{symbol}" historical price since {d}'.format(symbol=symbol, d=one_month_ago))
+                daily_data = get_daily(symbol)
+                for d, row in daily_data[:(one_month_ago + ' 00:00:00')].iterrows():
+                    print(get_quicken_row(symbol, d, row))
+                break
+            except RateLimitException:
+                logger.info('Sleep 60 seconds to cope with rate limiting')
+                time.sleep(60)
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
     env = Env()
     main(parse_args())
