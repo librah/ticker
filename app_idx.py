@@ -25,10 +25,8 @@ def get_quicken_row(symbol, row):
     """
     Reference: https://community.quicken.com/discussion/7542737/faq-importing-security-prices-including-hi-lo-vol/p1?new=1
     """
-    if row['volume'] == '--':
-        row['volume'] = 0
-    else:
-        row['volume'] = locale.atoi(row['volume']) / 100
+    row['volume'] = 0 if row['volume'] == '--' else locale.atoi(row['volume'])
+    row['date'] = datetime.strptime(row['date'], '%m/%d/%Y').strftime('%Y/%m/%d')
     return '{symbol}, {close}, ---, {date}, ---, {hi}, {lo}, {vol}, *'.format(
         symbol=symbol,
         close=row['close'],
