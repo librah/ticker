@@ -63,7 +63,7 @@ def main(args):
     today = (datetime.now()).strftime('%Y-%m-%d')
     for symbol in sorted(set(env.str('SYMBOLS_IDX').split('\n'))):
         symbol = symbol.strip()
-        if not symbol:
+        if not symbol or symbol.startswith('#'):
             continue
         eprint('Getting "{symbol}" index'.format(symbol=symbol))
         daily_data = get_daily(symbol, one_month_ago, today)

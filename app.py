@@ -50,7 +50,7 @@ def main(args):
     one_month_ago = (datetime.datetime.now() - datetime.timedelta(days=30)).strftime('%Y-%m-%d')
     for symbol in sorted(set(env.str('SYMBOLS').split('\n'))):
         symbol = symbol.strip()
-        if not symbol:
+        if not symbol or symbol.startswith('#'):
             continue
         while True:
             try:

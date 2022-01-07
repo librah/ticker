@@ -58,7 +58,7 @@ def main(args):
     d, rows = get_today()
     for symbol in sorted(set(env.str('SYMBOLS_TW').split('\n'))):
         symbol = symbol.strip()
-        if not symbol:
+        if not symbol or symbol.startswith('#'):
             continue
         eprint('Getting "{symbol}" price'.format(symbol=symbol))
         row = rows.loc[symbol]
