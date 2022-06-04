@@ -54,6 +54,7 @@ def get_daily(symbol, from_date, to_date):
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Get market index")
+    parser.add_argument('out', help='output file name')
     args = parser.parse_args()
     return args
 
@@ -61,16 +62,18 @@ def parse_args():
 def main(args):
     one_month_ago = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')
     today = (datetime.now()).strftime('%Y-%m-%d')
-    for symbol in sorted(set(env.str('SYMBOLS_IDX').split('\n'))):
-        symbol = symbol.strip()
-        if not symbol or symbol.startswith('#'):
-            continue
-        eprint('Getting "{symbol}" index'.format(symbol=symbol))
-        daily_data = get_daily(symbol, one_month_ago, today)
-        for row in daily_data:
-            print(get_quicken_row(symbol, row))
-        logger.info('Sleep 1 seconds to cope with rate limiting')
-        time.sleep(1)
+    with open(args.out, mode='w', encoding='utf-8') as f:
+        for symbol in sorted(set(env.str('SYMBOLS_IDX').split('\n'))):
+            symbol = symbol.strip()
+            if not symbol or symbol.startswith('#'):
+                continue
+            eprint('Getting "{symbol}" index'.format(symbol=symbol))
+            daily_data = get_daily(symbol, one_month_ago, today)
+            for row in daily_data:
+                f.write(get_quicken_row(symbol, row))
+                f.write('\n')
+            logger.info('Sleep 1 seconds to cope with rate limiting')
+            time.sleep(1)
 
 
 if __name__ == '__main__':

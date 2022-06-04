@@ -50,19 +50,22 @@ def get_today():
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Get ticker price")
+    parser.add_argument('out', help='output file name')
     args = parser.parse_args()
     return args
 
 
 def main(args):
     d, rows = get_today()
-    for symbol in sorted(set(env.str('SYMBOLS_TW').split('\n'))):
-        symbol = symbol.strip()
-        if not symbol or symbol.startswith('#'):
-            continue
-        eprint('Getting "{symbol}" price'.format(symbol=symbol))
-        row = rows.loc[symbol]
-        print(get_quicken_row(symbol, d, row))
+    with open(args.out, mode='w', encoding='utf-8') as f:
+        for symbol in sorted(set(env.str('SYMBOLS_TW').split('\n'))):
+            symbol = symbol.strip()
+            if not symbol or symbol.startswith('#'):
+                continue
+            eprint('Getting "{symbol}" price'.format(symbol=symbol))
+            row = rows.loc[symbol]
+            f.write(get_quicken_row(symbol, d, row))
+            f.write('\n')
 
 
 if __name__ == '__main__':

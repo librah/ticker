@@ -31,9 +31,9 @@ SPX
 
 ```console
 $ pip install -r requirements.txt
-$ python app.py > price.csv
-$ python app_tw.py > price_tw.csv
-$ python app_idx.py > price_idx.csv
+$ python app.py price.csv
+$ python app_tw.py price_tw.csv
+$ python app_idx.py price_idx.csv
 ```
 
 Quicken expects the file is UTF8 encoded. If you failed to import the file,
