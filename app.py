@@ -64,7 +64,7 @@ def main(args):
                     break
                 except RateLimitException:
                     logger.info('Sleep 60 seconds to cope with rate limiting')
-                    time.sleep(60)
+                    time.sleep(61)
 
 
 if __name__ == '__main__':
