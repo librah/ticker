@@ -29,14 +29,14 @@ def get_quicken_row(symbol, d, row):
         date=d.strftime('%Y/%m/%d'),
         hi=row['2. high'],
         lo=row['3. low'],
-        vol=row['6. volume'] / 100
+        vol=row['5. volume'] / 100
     )
 
 
 @limits(calls=5, period=60)
 def get_daily(symbol):
     ts = TimeSeries(key=env.str('API_KEY'), output_format='pandas')
-    daily_data, daily_meta_data = ts.get_daily_adjusted(symbol=symbol)
+    daily_data, daily_meta_data = ts.get_daily(symbol=symbol)
     return daily_data
 
 
