@@ -4,7 +4,7 @@ import logging
 import sys
 import time
 
-from alpha_vantage.timeseries import TimeSeries
+from twelvedata import TDClient
 from environs import Env
 from ratelimit import limits
 from ratelimit.exception import RateLimitException
@@ -14,30 +14,32 @@ env.read_env()
 
 logger = logging.getLogger(__file__)
 
+# Initialize client - apikey parameter is requiered
+td = TDClient(apikey=env.str('API_KEY'))
+
 
 def eprint(*args, **kwargs):
     print(*args, file=sys.stderr, **kwargs)
 
 
-def get_quicken_row(symbol, d, row):
+def get_quicken_row(symbol, row):
     """
     Reference: https://community.quicken.com/discussion/7542737/faq-importing-security-prices-including-hi-lo-vol/p1?new=1
     """
     return '{symbol}, {close}, ---, {date}, ---, {hi}, {lo}, {vol}, *'.format(
         symbol=symbol,
-        close=row['4. close'],
-        date=d.strftime('%Y/%m/%d'),
-        hi=row['2. high'],
-        lo=row['3. low'],
-        vol=row['5. volume'] / 100
+        close=row['close'],
+        date=row['datetime'].replace('-', '/'),
+        hi=row['high'],
+        lo=row['low'],
+        vol=int(row['volume']) / 100
     )
 
 
 @limits(calls=5, period=60)
 def get_daily(symbol):
-    ts = TimeSeries(key=env.str('API_KEY'), output_format='pandas')
-    daily_data, daily_meta_data = ts.get_daily(symbol=symbol)
-    return daily_data
+    ts = td.time_series(symbol=symbol, interval="1day", outputsize=10, order='asc')
+    return ts.as_json()
 
 
 def parse_args():
@@ -48,7 +50,6 @@ def parse_args():
 
 
 def main(args):
-    one_month_ago = (datetime.datetime.now() - datetime.timedelta(days=30)).strftime('%Y-%m-%d')
     with open(args.out, mode='w', encoding='utf-8') as f:
         for symbol in sorted(set(env.str('SYMBOLS').split('\n'))):
             symbol = symbol.strip()
@@ -56,18 +57,18 @@ def main(args):
                 continue
             while True:
                 try:
-                    logger.info('Getting "{symbol}" historical price since {d}'.format(symbol=symbol, d=one_month_ago))
+                    logger.info(f'Getting "{symbol}" historical price')
                     daily_data = get_daily(symbol)
-                    for d, row in daily_data[:(one_month_ago + ' 00:00:00')].iterrows():
-                        f.write(get_quicken_row(symbol, d, row))
+                    for row in daily_data:
+                        f.write(get_quicken_row(symbol, row))
                         f.write('\n')
+                    time.sleep(1)
                     break
                 except RateLimitException:
                     logger.info('Sleep 60 seconds to cope with rate limiting')
-                    time.sleep(61)
+                    time.sleep(60)
 
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
-    env = Env()
     main(parse_args())
