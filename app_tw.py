@@ -44,7 +44,7 @@ def get_today_twse():
         value, params = cgi.parse_header(r.headers['Content-Disposition'])
         filename = params['filename']  # STOCK_DAY_ALL_20210312.csv
         dt = datetime.strptime(filename, 'STOCK_DAY_ALL_%Y%m%d.csv')
-        rows = pd.read_csv(StringIO(r.text), index_col=0)
+        rows = pd.read_csv(StringIO(r.text), index_col=1)
         return dt, rows  # return data date, and dataframes
 
 
@@ -100,10 +100,10 @@ def main(args):
                 f.write(get_quicken_row({
                     'symbol': symbol,
                     'date': twse_d,
-                    'vol': row[1],
-                    'hi': row[4],
-                    'lo': row[5],
-                    'close': row[6],
+                    'vol': row[2],
+                    'hi': row[5],
+                    'lo': row[6],
+                    'close': row[7],
                 }))
                 f.write('\n')
             elif symbol in twotc_rows.index:
